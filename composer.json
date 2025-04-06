@@ -1,9 +1,10 @@
 {
     "name": "pvq212/tron-api",
     "description": "TRON API FOR PHP",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Pvq212\\TronApi\\": "src/"
+            "TronApi\\": "src/"
         }
     },
     "authors": [
@@ -12,6 +13,13 @@
             "email": "pvq212@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "php": "^8.0",
+        "ext-curl": "*",
+        "ext-gmp": "*",
+        "simplito/elliptic-php": "^1.0",
+        "kornrunner/secp256k1": "^0.2",
+        "kornrunner/keccak": "^1.1",
+        "phpseclib/phpseclib": "~3.0"
+    }
 }

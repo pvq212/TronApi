@@ -36,7 +36,7 @@ Tips:  php版本最低支持8.0且需要安装GMP扩展!
 ### 安装
 
 ```bash
-> composer require pvq212/tronApi
+> composer require pvq212/tron-api
 ```
 
 ### 接口调用
