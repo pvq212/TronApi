@@ -1,32 +1,17 @@
 {
-    "name": "anonymhk/tronapi",
-    "description": "Support TRON's TRX and TRC20, A PHP library to create Tron wallet addresses and manage wallets using the Tron API",
-    "keywords": [
-        "php",
-        "tron",
-        "trx",
-        "trc20"
-    ],
-    "type": "library",
-    "homepage": "https://github.com/anonymhk/tronapi",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "anonymhk"
-        }
-    ],
-    "require": {
-        "php": "^8.0",
-        "ext-curl": "*",
-        "ext-gmp": "*",
-        "simplito/elliptic-php": "^1.0",
-        "kornrunner/secp256k1": "^0.2",
-        "kornrunner/keccak": "^1.1",
-        "phpseclib/phpseclib": "~3.0"
-    },    
+    "name": "pvq212/tron-api",
+    "description": "TRON API FOR PHP",
     "autoload": {
         "psr-4": {
-            "TronApi\\": "src/"
+            "Pvq212\\TronApi\\": "src/"
         }
-    }
+    },
+    "authors": [
+        {
+            "name": "Cooper",
+            "email": "pvq212@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
 }

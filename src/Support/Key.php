@@ -3,7 +3,7 @@
 namespace TronApi\Support;
 
 use Elliptic\EC;
-use TronAPI\Crypto\Base58;
+use TronApi\Crypto\Base58;
 use InvalidArgumentException;
 
 class Key
