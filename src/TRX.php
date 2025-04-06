@@ -348,7 +348,7 @@ class TRX implements WalletInterface
 		return $this->getTransactionsRelated(address : $address,limit : $limit, to : true);
 	}
 
-    protected function sendRawTransaction(array $response) : object {
+    protected function sendRawTransaction(array $response) : array {
 		if(isset($response['signature']) === false or is_array($response['signature']) === false) throw new InvalidArgumentException('response has not been signature !');
 		$broadcast = $this->api->post('wallet/broadcasttransaction', $response);
 		return $broadcast;
