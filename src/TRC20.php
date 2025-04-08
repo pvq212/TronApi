@@ -36,7 +36,7 @@ class TRC20 extends TRX
             throw new TronErrorException(hex2bin($body->result->message));
         }
 
-        return Utils::formatBalance(hexdec($body['constant_result'][0]), $this->decimals);
+        return hexdec($body['constant_result'][0]);
     }
 
     /**
