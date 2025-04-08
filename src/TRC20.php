@@ -45,7 +45,7 @@ class TRC20 extends TRX
     public function transferTRC20(string $private_key, string $from, string $to, float $amount, $message = null, float $fee_limit = 150000000): Transaction
     {
         $toFormat = Formatter::toAddressFormat($to);
-        $trans_amount = $this->toTronValue($amount, $this->decimals);
+        $trans_amount = bcmul($amount, bcpow('10', $this->decimals, 0), 0);
         //$abi_encoded = ABI::EncodeParameters_External(['address', 'uint256'], [$toFormat, $trans_amount]);
         $numberFormat = Formatter::toIntegerFormat($trans_amount);
 
