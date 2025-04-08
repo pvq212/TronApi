@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace TronApi;
 
@@ -11,10 +11,10 @@ class Api
     protected Requests $sender;
 
     public function __construct(string $apiurl, array $options = [])
-    {        
+    {
         $this->sender = new Requests($apiurl, $options);
     }
-    
+
     /**
      * Abstracts some common functionality like formatting the post data
      * along with error handling.
@@ -36,7 +36,7 @@ class Api
      */
     public function get(string $endpoint, array $data = [])
     {
-        $res_data = $this->sender->request('GET', $endpoint, $data);        
+        $res_data = $this->sender->request('GET', $endpoint, $data);
         $this->checkForErrorResponse($res_data);
         return $res_data;
     }

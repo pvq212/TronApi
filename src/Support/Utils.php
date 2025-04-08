@@ -3,7 +3,7 @@
 namespace TronApi\Support;
 
 use stdClass;
-use InvalidArgumentException;  
+use InvalidArgumentException;
 use kornrunner\Keccak;
 use TronApi\Crypto\Base58;
 use phpseclib3\Math\BigInteger as BigNumber;
@@ -77,7 +77,7 @@ class Utils
      * @param bool $isPrefix
      * @return string
      */
-    public static function toHex($value, $isPrefix=false)
+    public static function toHex($value, $isPrefix = false)
     {
         if (is_numeric($value) && !is_float($value) && !is_double($value)) {
             // turn to hex number
@@ -91,10 +91,10 @@ class Utils
             $hex = $value->toHex(true);
             $hex = preg_replace('/^0+(?!$)/', '', $hex);
         } else {
-			$type_error = gettype($value);
+            $type_error = gettype($value);
             throw new InvalidArgumentException("The value to Utils::toHex() function is not supported: value=$value type=$type_error. Only int, hex string, BigNumber or int string representation are allowed.");
         }
-        
+
         if ($isPrefix) {
             return self::addZeroPrefix($hex);
         }
@@ -161,7 +161,7 @@ class Utils
         if (self::isZeroPrefixed($value)) return $value;
 
         //remove leading 0s
-        $value = ltrim($value, "0"); 
+        $value = ltrim($value, "0");
 
         return '0x' . $value;
     }
@@ -173,26 +173,19 @@ class Utils
      * @return object[]
      */
     public static function forceAllNumbersHex($params)
-    { 
-        foreach($params as $key => $param) 
-        {  
-            if ($key !== 'chainId')
-            { 
-                if(is_numeric($param) || $param instanceof BigNumber)
-                {  
+    {
+        foreach ($params as $key => $param) {
+            if ($key !== 'chainId') {
+                if (is_numeric($param) || $param instanceof BigNumber) {
                     $params[$key] = self::toHex($param, true);
-                }
-                else if(is_array($param))
-                { 
-                    foreach($param as $sub_key => $sub_param)  
-                    {  
-                        if ($sub_key !== 'chainId')
-                        { 
-                            if(is_numeric($sub_param) || $sub_param instanceof BigNumber) {   
+                } else if (is_array($param)) {
+                    foreach ($param as $sub_key => $sub_param) {
+                        if ($sub_key !== 'chainId') {
+                            if (is_numeric($sub_param) || $sub_param instanceof BigNumber) {
                                 $param[$sub_key] = self::toHex($sub_param, true);
-                            }  
+                            }
                         }
-                    } 
+                    }
 
                     $params[$key] = $param;
                 }
@@ -277,16 +270,16 @@ class Utils
      * @return \phpseclib3\Math\BigInteger
      */
     public static function toWei($number, string $unit)
-    { 
+    {
         if (!isset(self::UNITS[$unit])) {
             throw new InvalidArgumentException('toWei doesn\'t support ' . $unit . ' unit.');
-        } 
-		
-		return self::toWei_Internal($number, self::UNITS[$unit]);
+        }
+
+        return self::toWei_Internal($number, self::UNITS[$unit]);
     }
 
 
-	/**
+    /**
      * toWeiFromDecimals
      * Change number from unit that has decimals to wei.
      * For example:
@@ -298,28 +291,28 @@ class Utils
      * @return \phpseclib3\Math\BigInteger
      */
     public static function toWeiFromDecimals($number, int $numberOfDecimals)
-    {  
-		$exponent = str_pad('1', $numberOfDecimals + 1, '0', STR_PAD_RIGHT);
-		return self::toWei_Internal($number, $exponent);
+    {
+        $exponent = str_pad('1', $numberOfDecimals + 1, '0', STR_PAD_RIGHT);
+        return self::toWei_Internal($number, $exponent);
     }
 
 
-	 /**
+    /**
      * toWei_Internal
      * Internal private fucntion to convert a number in "unti" to string. 
-	 * The unit string is 1000...000 having # decimal zero positions 
+     * The unit string is 1000...000 having # decimal zero positions 
      * 
      * @param BigNumber|string $number
      * @param string $unit_value
      * @return \phpseclib3\Math\BigInteger
      */
-	private static function toWei_Internal($number, string $unit_value)
+    private static function toWei_Internal($number, string $unit_value)
     {
         if (!is_string($number) && !($number instanceof BigNumber)) {
             throw new InvalidArgumentException('toWei number must be string or bignumber.');
         }
         $bn = self::toBn($number);
-  
+
         $bnt = new BigNumber($unit_value);
 
         if (is_array($bn)) {
@@ -362,7 +355,7 @@ class Utils
         //     throw new InvalidArgumentException('Please use another unit.');
         // }
         $wei = self::toWei($number, $unit);
-        $bnt = new BigNumber(self::UNITS['ether']); 
+        $bnt = new BigNumber(self::UNITS['ether']);
 
         return $wei->divide($bnt);
     }
@@ -395,8 +388,8 @@ class Utils
     }
 
 
-	 
-	 /**
+
+    /**
      * toWeiString
      * Change number from unit to wei. and show a string representation
      * For example:
@@ -406,13 +399,13 @@ class Utils
      * @param string $unit
      * @return string
      */
-    public static function toWeiString($number, $unit) : string
+    public static function toWeiString($number, $unit): string
     {
-		$conv = self::toWei($number, $unit);
-		return $conv->toString();
-	}
+        $conv = self::toWei($number, $unit);
+        return $conv->toString();
+    }
 
-	/**
+    /**
      * toWeiStringFromDecimals
      * Change number from decimals to wei. and show a string representation
      * For example:
@@ -422,14 +415,14 @@ class Utils
      * @param int $numberOfDecimals
      * @return string
      */
-    public static function toWeiStringFromDecimals($number, int $numberOfDecimals) : string
+    public static function toWeiStringFromDecimals($number, int $numberOfDecimals): string
     {
-		$conv = self::toWeiFromDecimals($number, $numberOfDecimals);
-		return $conv->toString();
-	}
+        $conv = self::toWeiFromDecimals($number, $numberOfDecimals);
+        return $conv->toString();
+    }
 
 
-	/**
+    /**
      * toEtherString
      * Change number from unit to ether. and show a string representation
      * For example:
@@ -439,14 +432,14 @@ class Utils
      * @param string $unit
      * @return string
      */
-    public static function toEtherString($number, $unit) : string
+    public static function toEtherString($number, $unit): string
     {
-        $conversion = self::toEther($number, $unit);   
-		return self::transformDivisionToString($conversion, self::UNITS[$unit], self::UNITS['ether']);
+        $conversion = self::toEther($number, $unit);
+        return self::transformDivisionToString($conversion, self::UNITS[$unit], self::UNITS['ether']);
     }
 
 
-	/**
+    /**
      * fromWeiToString
      * Change number from wei to unit. and show a string representation
      * For example:
@@ -456,14 +449,14 @@ class Utils
      * @param string $unit
      * @return \phpseclib3\Math\BigInteger
      */
-	public static function fromWeiToString($number, $unit) : string
+    public static function fromWeiToString($number, $unit): string
     {
-		$conversion = self::fromWei($number, $unit);   
-		return self::transformDivisionToString($conversion, self::UNITS['wei'], self::UNITS[$unit]);
-	}
- 
+        $conversion = self::fromWei($number, $unit);
+        return self::transformDivisionToString($conversion, self::UNITS['wei'], self::UNITS[$unit]);
+    }
 
-	/**
+
+    /**
      * fromWeiToDecimalsString
      * Change number from wei to number of decimals.
      * For example:
@@ -473,7 +466,7 @@ class Utils
      * @param int $numberOfDecimals
      * @return string
      */
-    public static function fromWeiToDecimalsString($number, int $numberOfDecimals) : string
+    public static function fromWeiToDecimalsString($number, int $numberOfDecimals): string
     {
         $bn = self::toBn($number);
 
@@ -481,45 +474,42 @@ class Utils
 
         $bnt = new BigNumber($exponent);
 
-		$conversion = $bn->divide($bnt);
+        $conversion = $bn->divide($bnt);
 
         return self::transformDivisionToString($conversion, self::UNITS['wei'], $exponent);
     }
 
 
-	/**
+    /**
      * transformDivisionToString
      * Internal private fucntion to convert a [quotient, remainder] BigNumber division result, 
-	 * to a human readable unit.decimals (12.3920012000)
-	 * The unit string is 1000...000 having # decimal zero positions 
+     * to a human readable unit.decimals (12.3920012000)
+     * The unit string is 1000...000 having # decimal zero positions 
      * 
      * @param (\phpseclib3\Math\BigInteg, \phpseclib3\Math\BigInteg) $divisionArray
      * @param string $unitZerosOrigin string representing the origin unit's number of zeros 
-	 * @param string $unitZerosOrigin string representing the origin unit's number of zeros 
+     * @param string $unitZerosOrigin string representing the origin unit's number of zeros 
      * @return string
      */
-	private static function transformDivisionToString($divisionArray, $unitZerosOrigin, $unitZerosDestiny) : string
-	{
-		$left = $divisionArray[0]->toString();
-		$right = $divisionArray[1]->toString();
- 
-		if ($right != "0")
-		{
-			$bnt_wei = new BigNumber($unitZerosOrigin);
-			$bnt_unit = new BigNumber($unitZerosDestiny);
- 
-			$right_lead_zeros = strlen($bnt_unit->toString()) - strlen($bnt_wei->toString()) - strlen($right);  
-			
-			for ($i = 0; $i < $right_lead_zeros; $i++) $right = '0' . $right;
-			$right = rtrim($right, "0");
-			
-			return $left . '.' . $right; 
-		}
-		else
-		{
-			return $left;
-		} 
-	}
+    private static function transformDivisionToString($divisionArray, $unitZerosOrigin, $unitZerosDestiny): string
+    {
+        $left = $divisionArray[0]->toString();
+        $right = $divisionArray[1]->toString();
+
+        if ($right != "0") {
+            $bnt_wei = new BigNumber($unitZerosOrigin);
+            $bnt_unit = new BigNumber($unitZerosDestiny);
+
+            $right_lead_zeros = strlen($bnt_unit->toString()) - strlen($bnt_wei->toString()) - strlen($right);
+
+            for ($i = 0; $i < $right_lead_zeros; $i++) $right = '0' . $right;
+            $right = rtrim($right, "0");
+
+            return $left . '.' . $right;
+        } else {
+            return $left;
+        }
+    }
 
     /**
      * jsonMethodToString
@@ -527,7 +517,7 @@ class Utils
      * @param stdClass|array $json
      * @return string
      */
-    public static function jsonMethodToString($json) : string
+    public static function jsonMethodToString($json): string
     {
         if ($json instanceof stdClass) {
             // one way to change whole json stdClass to array type
@@ -611,13 +601,11 @@ class Utils
      */
     public static function toBn($number)
     {
-        if ($number instanceof BigNumber){
+        if ($number instanceof BigNumber) {
             $bn = $number;
-        } 
-		elseif (is_int($number)) {
+        } elseif (is_int($number)) {
             $bn = new BigNumber($number);
-        } 
-		elseif (is_numeric($number)) {
+        } elseif (is_numeric($number)) {
             $number = (string) $number;
 
             if (self::isNegative($number)) {
@@ -646,8 +634,7 @@ class Utils
             if (isset($negative1)) {
                 $bn = $bn->multiply($negative1);
             }
-        } 
-		elseif (is_string($number)) {
+        } elseif (is_string($number)) {
             $number = mb_strtolower($number);
 
             if (self::isNegative($number)) {
@@ -666,71 +653,75 @@ class Utils
             if (isset($negative1)) {
                 $bn = $bn->multiply($negative1);
             }
-        } 
-		else {
+        } else {
             throw new InvalidArgumentException('toBn number must be BigNumber, string or int.');
         }
         return $bn;
     }
 
 
-	public static function getRandomHex(int $length)
-	{
-		return bin2hex(openssl_random_pseudo_bytes($length / 2));   
-	}
-
-
-	public static function stringContains(string $haystack, string $needle)
-	{
-		return empty($needle) || strpos($haystack, $needle) !== false;
-	}
- 
-    public static function toDecimals($number, int $decimals = 6, int $keep_decimal = 4)
+    public static function getRandomHex(int $length)
     {
-        $base = bcpow('10', $decimals, 0);
-        return bcdiv($number, $base, $keep_decimal);        
+        return bin2hex(openssl_random_pseudo_bytes($length / 2));
     }
 
-	public static function addressToHex(string $address) : string {
-		if(strlen($address) == 42 and str_starts_with($address,strval(41))):
-			return $address;
-		else:
-			return Base58::decodeAddress($address);
-		endif;
-	}
-    
-	public static function hexToAddress(string $address) : string {
-		if(ctype_xdigit($address)):
-			return Base58::encodeAddress($address);
-		else:
-			return $address;
-		endif;
-	}
+
+    public static function stringContains(string $haystack, string $needle)
+    {
+        return empty($needle) || strpos($haystack, $needle) !== false;
+    }
+
+    public static function toDecimals($number, int $decimals = 6, int $keep_decimal = 6)
+    {
+        $base = bcpow('10', $decimals, 0);
+        return bcdiv($number, $base, $keep_decimal);
+    }
+
+    public static function addressToHex(string $address): string
+    {
+        if (strlen($address) == 42 and str_starts_with($address, strval(41))):
+            return $address;
+        else:
+            return Base58::decodeAddress($address);
+        endif;
+    }
+
+    public static function hexToAddress(string $address): string
+    {
+        if (ctype_xdigit($address)):
+            return Base58::encodeAddress($address);
+        else:
+            return $address;
+        endif;
+    }
 
     /**
-	 * 验证TRC地址是否有效
-	 */
-	public static function verifyAddress(string $address) : bool {
-		if(preg_match('/^T[A-HJ-NP-Za-km-z1-9]{33}$/',$address)):
-			$hex = self::addressToHex($address);
-			$wallet = self::hexToAddress($hex);
-			return $wallet === $address;
-		else:
-			return false;
-		endif;
-	}
+     * 验证TRC地址是否有效
+     */
+    public static function verifyAddress(string $address): bool
+    {
+        if (preg_match('/^T[A-HJ-NP-Za-km-z1-9]{33}$/', $address)):
+            $hex = self::addressToHex($address);
+            $wallet = self::hexToAddress($hex);
+            return $wallet === $address;
+        else:
+            return false;
+        endif;
+    }
 
     /**
      * 根据精度展示资产
      */
-    public static function formatBalance($number, int $decimals = 6){
+    public static function formatBalance($number, int $decimals = 6)
+    {
         return number_format(self::toDecimals($number, $decimals), 2);
     }
 
     /**
      * 使用私钥获取公钥
-    */
-    public static function getPublicKeyFromPrivateKey($private_key) {
+     */
+    public static function getPublicKeyFromPrivateKey($private_key)
+    {
         $ec = new EC('secp256k1');
         $keyPair = $ec->keyFromPrivate($private_key);
         return $keyPair->getPublic()->encode('hex');
@@ -739,17 +730,16 @@ class Utils
     /**
      * 获取指点时间戳的Unix
      */
-    public static function getUnixTimestamp($minute = 0, $need_millisecond = true){
-        if($minute == 0){
+    public static function getUnixTimestamp($minute = 0, $need_millisecond = true)
+    {
+        if ($minute == 0) {
             $symbol = "now";
-        }
-        else if($minute > 0){
+        } else if ($minute > 0) {
             $symbol = "+{$minute}";
-        }
-        else{
+        } else {
             $symbol = "{$minute}";
         }
 
-        return $need_millisecond ? strtotime($symbol)."000" : strtotime($symbol);
+        return $need_millisecond ? strtotime($symbol) . "000" : strtotime($symbol);
     }
 }

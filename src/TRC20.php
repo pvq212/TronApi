@@ -36,8 +36,7 @@ class TRC20 extends TRX
             throw new TronErrorException(hex2bin($body->result->message));
         }
 
-        $balance = Utils::formatBalance(hexdec($body->constant_result[0]), $this->decimals);
-        return $balance;
+        return Utils::formatBalance(hexdec($body['constant_result'][0]), $this->decimals);
     }
 
     /**
@@ -63,7 +62,7 @@ class TRC20 extends TRX
         }
 
         $tradeobj = $this->signTransaction($private_key, $body['transaction']);
-        if(!is_null($message)) $tradeobj['raw_data']->data = bin2hex($message);
+        if (!is_null($message)) $tradeobj['raw_data']->data = bin2hex($message);
         $response = $this->sendRawTransaction($tradeobj);
 
         if (isset($response['result']) && $response['result'] == true) {
@@ -78,7 +77,7 @@ class TRC20 extends TRX
 
         /**
          * 输出格式
-        */
+         */
         // array(2) {
         //     ["result"]=>
         //     array(1) {
@@ -135,29 +134,29 @@ class TRC20 extends TRX
     /**
      * 获取地址交易记录
      */
-    public function getTransactionsByTrc20(string $address, int $mintimestamp = null, int $maxtimestamp = null, bool $confirmed = null, bool $to = false,bool $from = false, $limit = 20)
+    public function getTransactionsByTrc20(string $address, int $mintimestamp = null, int $maxtimestamp = null, bool $confirmed = null, bool $to = false, bool $from = false, $limit = 20)
     {
         $data = [
             'contract_address' => $this->contractAddress,
             'only_to' => $to,
             'only_from' => $from,
-            'limit' => max(min($limit,200),20)
+            'limit' => max(min($limit, 200), 20)
         ];
-        if($mintimestamp != null){
-            $data['min_timestamp'] = date('Y-m-d\TH:i:s.v\Z',$mintimestamp);
+        if ($mintimestamp != null) {
+            $data['min_timestamp'] = date('Y-m-d\TH:i:s.v\Z', $mintimestamp);
         }
-        if($maxtimestamp != null){
-            $data['max_timestamp'] = date('Y-m-d\TH:i:s.v\Z',$maxtimestamp);
+        if ($maxtimestamp != null) {
+            $data['max_timestamp'] = date('Y-m-d\TH:i:s.v\Z', $maxtimestamp);
         }
-        if(!is_null($confirmed)){
-			$data[$confirmed ? 'only_confirmed' : 'only_unconfirmed'] = true;
-		}
+        if (!is_null($confirmed)) {
+            $data[$confirmed ? 'only_confirmed' : 'only_unconfirmed'] = true;
+        }
 
         $url_param = http_build_query($data);
 
         $url = "v1/accounts/{$address}/transactions/trc20?{$url_param}";
         $body = $this->api->get($url);
-        
+
         if (isset($body['data']) && $body['success']) {
             return $body['data'];
         }
@@ -166,17 +165,19 @@ class TRC20 extends TRX
 
     /**
      * 获取钱包的支出记录
-    */
-	public function getTransactionsFromAddress(string $address,int $limit = 20) : object {
-		return $this->getTransactionsByTrc20(address : $address,limit : $limit, from : true);
-	}
+     */
+    public function getTransactionsFromAddress(string $address, int $limit = 20): object
+    {
+        return $this->getTransactionsByTrc20(address: $address, limit: $limit, from: true);
+    }
 
     /**
      * 获取钱包地址的收入记录
      */
-	public function getTransactionsToAddress(string $address,int $limit = 20) : object {
-		return $this->getTransactionsByTrc20(address : $address,limit : $limit, to : true);
-	}
+    public function getTransactionsToAddress(string $address, int $limit = 20): object
+    {
+        return $this->getTransactionsByTrc20(address: $address, limit: $limit, to: true);
+    }
 
     /**
      * Sign the transaction, the api has the risk of leaking the private key,
@@ -189,19 +190,19 @@ class TRC20 extends TRX
      */
     private function signTransaction($private_key, $transaction, string $message = null): array
     {
-        if(!is_array($transaction)) {
+        if (!is_array($transaction)) {
             throw new TronErrorException('Invalid transaction provided');
         }
 
-        if(isset($transaction['Error']))
+        if (isset($transaction['Error']))
             throw new TronErrorException($transaction['Error']);
 
 
-        if(isset($transaction['signature'])) {
+        if (isset($transaction['signature'])) {
             throw new TronErrorException('Transaction is already signed');
         }
 
-        if(!is_null($message)) {
+        if (!is_null($message)) {
             $transaction['raw_data']['data'] = bin2hex($message);
         }
         $signature = Support\Secp::sign($transaction['txID'], $private_key);

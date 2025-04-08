@@ -2,6 +2,4 @@
 
 namespace TronApi\Exceptions;
 
-class TransactionException extends \Exception
-{
-}
+class TransactionException extends \Exception {}

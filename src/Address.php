@@ -20,7 +20,7 @@ class Address
         }
 
         $this->privateKey = $privateKey;
-        $this->address = $address;        
+        $this->address = $address;
     }
 
     /**

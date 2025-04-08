@@ -2,6 +2,4 @@
 
 namespace TronApi\Exceptions;
 
-class TronErrorException extends \Exception
-{
-}
+class TronErrorException extends \Exception {}
