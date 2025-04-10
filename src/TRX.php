@@ -14,7 +14,7 @@ use FurqanSiddiqui\BIP39\Language\English;
 use TronApi\Exceptions\TronErrorException;
 use TronApi\Exceptions\TransactionException;
 use BitWasp\Bitcoin\Mnemonic\Bip39\Bip39SeedGenerator;
-use BitWasp\Bitcoin\Key\Deterministic\HierarchicalKeyFactory;
+use BitWasp\Bitcoin\Key\Factory\HierarchicalKeyFactory;
 
 class TRX implements WalletInterface
 {
