@@ -17,7 +17,7 @@
         "php": "^8.0",
         "ext-curl": "*",
         "ext-gmp": "*",
-        "bitwasp/bitcoin": "^1.0",
+        "protonlabs/bitcoin": "^1.0",
         "furqansiddiqui/bip39-mnemonic-php": "^0.2.1",
         "kornrunner/keccak": "^1.1",
         "phpseclib/phpseclib": "~3.0",
