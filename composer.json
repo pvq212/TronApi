@@ -21,6 +21,7 @@
         "furqansiddiqui/bip39-mnemonic-php": "^0.2.1",
         "kornrunner/keccak": "^1.1",
         "phpseclib/phpseclib": "~3.0",
-        "simplito/elliptic-php": "^1.0"
+        "simplito/elliptic-php": "^1.0",
+        "kornrunner/secp256k1": "^0.3.0"
     }
 }
