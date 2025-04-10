@@ -3,15 +3,18 @@
 namespace TronApi;
 
 use TronApi\Api;
+use TronApi\Crypto\Secp;
 use TronApi\Crypto\Keccak;
+use TronApi\Support\Utils;
+use InvalidArgumentException;
+use FurqanSiddiqui\BIP39\BIP39;
+use TronApi\Support\Key as SupportKey;
 use TronApi\Interfaces\WalletInterface;
+use FurqanSiddiqui\BIP39\Language\English;
 use TronApi\Exceptions\TronErrorException;
 use TronApi\Exceptions\TransactionException;
-use TronApi\Support\Key as SupportKey;
-use TronApi\Crypto\Secp;
-use Elliptic\EC;
-use InvalidArgumentException;
-use TronApi\Support\Utils;
+use BitWasp\Bitcoin\Mnemonic\Bip39\Bip39SeedGenerator;
+use BitWasp\Bitcoin\Key\Deterministic\HierarchicalKeyFactory;
 
 class TRX implements WalletInterface
 {
@@ -28,20 +31,7 @@ class TRX implements WalletInterface
      */
     public function generateAddress(): array
     {
-        $ec = new EC('secp256k1');
-        $key = $ec->genKeyPair();
-        $priv = $ec->keyFromPrivate($key->priv);
-        $privKey = $priv->getPrivate(enc: 'hex');
-        $pubKey = $priv->getPublic(enc: 'hex');
-        $address = $this->getAddressHexFromPublicKey($pubKey);
-        if (!$this->validateAddress($address)) throw new TronErrorException('address validate fail!');
-        $wallet = Utils::hexToAddress($address);
-        return [
-            'privatekey' => $privKey,
-            'publickey' => $pubKey,
-            'address' => $address,
-            'wallet' => $wallet
-        ];
+        return $this->generateAddressWithMnemonic();
     }
 
     /**
@@ -49,16 +39,10 @@ class TRX implements WalletInterface
      */
     public function generateAddressWithMnemonic(): array
     {
-        $ec = new EC('secp256k1');
-        $key = $ec->genKeyPair();
-        $priv = $ec->keyFromPrivate($key->priv);
-        $privKey = $priv->getPrivate(enc: 'hex');
-        $pubKey = $priv->getPublic(enc: 'hex');
-        $mnemonic = $this->getPhraseFromPrivateKey($privKey);
-        $calcPrivKey = $this->getPrivateKeyFromPhrase($mnemonic);
-        if ($calcPrivKey != $privKey) throw new TronErrorException('mnemonic validate fail!');
+        $mnemonic = $this->mnemonicGenerate();
+        $privKey = $this->mnemonicGeneratePrivateKey($mnemonic);
+        $pubKey = SupportKey::privateKeyToPublicKey($privKey);
         $address = $this->getAddressHexFromPublicKey($pubKey);
-        if (!$this->validateAddress($address)) throw new TronErrorException('address validate fail!');
         $wallet = Utils::hexToAddress($address);
 
         return [
@@ -263,52 +247,6 @@ class TRX implements WalletInterface
         return implode(chr(32), $phrases);
     }
 
-    /**
-     * 从助记词获取私钥
-     */
-    public function getPrivateKeyFromPhrase(string $phrase, int $base = 16): string
-    {
-        if (extension_loaded('gmp')):
-            $words = $this->getWords();
-            srand($base);
-            shuffle($words);
-            $split = explode(chr(32), $phrase);
-            $integer = [];
-            $new_privatekey = '';
-            foreach ($split as $number => $i):
-                $index = array_search($i, $words);
-                if ($index === false):
-                    throw new TronErrorException('The word ' . $i . ' was not found !');
-                else:
-                    if (count($split) === ($number + 1)):
-                        if ($index >= 2000):
-                            $index -= 2000; // A number to recognize zeros
-                            $repeat = intdiv($index, 10);
-                            $index -= ($repeat * 10); // strlen($i) === 2 || 3
-                            $last = str_pad(strval($index), $repeat, strval(0), STR_PAD_LEFT);
-                        elseif ($index >= 1000):
-                            $index -= 1000; // A number to recognize zeros
-                            $repeat = intdiv($index, 100); // strlen($i) === 1 || 2 || 3
-                            $index -= ($repeat * 100);
-                            $last = str_pad(strval($index), $repeat, strval(0), STR_PAD_LEFT);
-                        else:
-                            $last = strval($index);
-                        endif;
-                        var_dump(implode($integer) . $last);
-                        $new_privatekey = gmp_strval(implode($integer) . $last, $base);
-                        $new_privatekey = strlen($new_privatekey) % 2 ? strval(0) . $new_privatekey : $new_privatekey;
-                    else:
-                        $index = str_pad(strval($index), 3, strval(0), STR_PAD_LEFT);
-                        $integer[] = $index;
-                    endif;
-                endif;
-            endforeach;
-            return $new_privatekey;
-        else:
-            throw new TronErrorException('gmp extension is needed !');
-        endif;
-    }
-
     public function getTransactionsRelated(string $address, bool $confirmed = null, bool $to = false, bool $from = false, bool $searchinternal = true, int $limit = 20, string $order = 'block_timestamp,desc', int $mintimestamp = null, int $maxtimestamp = null): object
     {
         $data = [
@@ -354,6 +292,34 @@ class TRX implements WalletInterface
     public function getTransactionsToAddress(string $address, int $limit = 20): object
     {
         return $this->getTransactionsRelated(address: $address, limit: $limit, to: true);
+    }
+
+    /**
+     * 獲取註記詞的私鑰
+     */
+    public function mnemonicGeneratePrivateKey(string $mnemonic, int $index = 0): string
+    {
+        $seedGenerator = new Bip39SeedGenerator();
+        $seed = $seedGenerator->getSeed($mnemonic);
+
+        $hdFactory = new HierarchicalKeyFactory();
+        $master = $hdFactory->fromEntropy($seed);
+        $hardened = $master->derivePath("44'/195'/0'/0/{$index}");
+
+        return $hardened->getPrivateKey()->getHex();
+    }
+
+    /**
+     * 獲取註記詞
+     */
+    public function mnemonicGenerate(int $wordCount = 24): string
+    {
+        $mnemonic = BIP39::fromRandom(
+            wordList: English::getInstance(),
+            wordCount: $wordCount
+        );
+
+        return implode(" ", $mnemonic->words);
     }
 
     protected function sendRawTransaction(array $response): array
