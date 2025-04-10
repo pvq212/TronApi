@@ -138,6 +138,23 @@ class TRX implements WalletInterface
         return $account;
     }
 
+    public function getAccountResource(string $address)
+    {
+        return $this->api->post('wallet/getaccountresource', [
+            'address' => Utils::addressToHex($address),
+        ]);
+    }
+
+    public function doPost($api, $data)
+    {
+        return $this->api->post($api, $data);
+    }
+
+    public function doGet($api, $data)
+    {
+        return $this->api->get($api, $data);
+    }
+
     /**
      * 获取TRX余额
      */
